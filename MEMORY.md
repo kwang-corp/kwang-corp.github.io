@@ -186,3 +186,10 @@
   - Next Loop: `CR-005` or `CR-007` only if the user clarifies the ambiguous rules
 - `CR-005`: `HITL_REQUIRED`
 - `CR-007`: `BLOCKED`
+
+## Latest Deployment Update
+- Status: `DEPLOYED`
+- Commit: `b160f45e1c026ebd4db723fdc44a66ab70ebf33f`
+- URL: `https://kwang-corp.github.io/`
+- Verification: HTTP `200 OK` from GitHub Pages and content check confirmed the live site
+- Push result: `main -> main`
