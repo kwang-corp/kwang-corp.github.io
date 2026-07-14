@@ -3,7 +3,35 @@
   const HIGH_SCORE_KEY = 'loop-engineering-snake-high-score';
   const STEP_DELAY_START = 140;
   const STEP_DELAY_MIN = 80;
-  const STEP_DELAY_STEP = 3;
+  const STEP_DELAY_STEP = 10;
+  const GAME_COPY = {
+    ko: {
+      ready: '준비됨',
+      running: '실행 중',
+      paused: '일시정지',
+      gameOver: '게임 오버',
+      cleared: '보드를 모두 채웠습니다!',
+      pressStart: '시작 버튼을 눌러 시작하세요',
+      pauseMessage: '일시정지됨',
+      hint: '화살표나 버튼을 눌러 방향을 바꾸세요',
+      start: '시작',
+      pause: '일시정지',
+      resume: '재개',
+    },
+    en: {
+      ready: 'Ready',
+      running: 'Running',
+      paused: 'Paused',
+      gameOver: 'Game over',
+      cleared: 'You cleared the board!',
+      pressStart: 'Press Start to begin',
+      pauseMessage: 'Paused',
+      hint: 'Swipe or tap arrows to steer',
+      start: 'Start',
+      pause: 'Pause',
+      resume: 'Resume',
+    },
+  };
 
   function sameCell(a, b) {
     return a.x === b.x && a.y === b.y;
@@ -25,6 +53,7 @@
       this.statePill = root.querySelector('#game-state-pill');
       this.scoreValue = root.querySelector('#score-value');
       this.highScoreValue = root.querySelector('#high-score-value');
+      this.levelValue = root.querySelector('#level-value');
       this.overlay = root.querySelector('#game-overlay');
       this.startButton = root.querySelector('[data-action="start"]');
       this.pauseButton = root.querySelector('[data-action="pause"]');
@@ -36,6 +65,7 @@
       this.running = false;
       this.gameOver = false;
       this.score = 0;
+      this.level = 1;
       this.stepDelay = STEP_DELAY_START;
       this.lastStepAt = 0;
       this.loopId = 0;
@@ -49,6 +79,9 @@
       this.boardSize = 0;
       this.cellSize = 0;
       this.devicePixelRatio = Math.max(1, window.devicePixelRatio || 1);
+      this.locale = 'ko';
+      this.stateKey = 'ready';
+      this.overlayKey = 'pressStart';
 
       this.onKeyDown = this.onKeyDown.bind(this);
       this.onResize = this.onResize.bind(this);
@@ -63,6 +96,20 @@
       this.render();
       this.loopId = window.requestAnimationFrame(this.animate);
       this.root.dataset.snakeInitialized = 'true';
+    }
+
+    t(key) {
+      return (GAME_COPY[this.locale] && GAME_COPY[this.locale][key]) || GAME_COPY.en[key] || key;
+    }
+
+    setLocale(locale) {
+      this.locale = GAME_COPY[locale] ? locale : 'ko';
+      this.updateButtonState();
+      this.updateHud();
+      if (this.overlay && !this.overlay.classList.contains('is-hidden') && this.overlayKey) {
+        this.overlay.textContent = this.t(this.overlayKey);
+      }
+      this.setState(this.stateKey);
     }
 
     bindEvents() {
@@ -82,6 +129,12 @@
       this.restartButton?.addEventListener('click', () => this.restart());
 
       this.directionButtons.forEach((button) => {
+        button.addEventListener('pointerdown', (event) => {
+          event.preventDefault();
+          const direction = button.dataset.direction;
+          this.changeDirection(direction);
+        });
+
         button.addEventListener('click', () => {
           const direction = button.dataset.direction;
           this.changeDirection(direction);
@@ -119,17 +172,18 @@
       this.direction = { x: 1, y: 0 };
       this.nextDirection = { x: 1, y: 0 };
       this.score = 0;
+      this.level = 1;
       this.stepDelay = STEP_DELAY_START;
       this.gameOver = false;
       this.running = false;
       this.food = this.spawnFood();
       this.lastStepAt = 0;
 
-      this.setState('Ready');
+      this.setState('ready');
       this.updateHud();
       this.syncStateAttributes();
       if (!keepOverlay) {
-        this.showOverlay('Press Start to begin');
+        this.showOverlay('pressStart');
       }
     }
 
@@ -142,7 +196,7 @@
       this.gameOver = false;
       this.lastStepAt = performance.now();
       this.hideOverlay();
-      this.setState('Running');
+      this.setState('running');
       this.updateButtonState();
       this.syncStateAttributes();
     }
@@ -155,8 +209,8 @@
 
       if (this.running) {
         this.running = false;
-        this.setState('Paused');
-        this.showOverlay('Paused');
+        this.setState('paused');
+        this.showOverlay('pauseMessage');
       } else {
         this.start();
         return;
@@ -328,10 +382,10 @@
 
       if (sameCell(nextHead, this.food)) {
         this.score += 1;
-        this.stepDelay = Math.max(STEP_DELAY_MIN, STEP_DELAY_START - this.score * STEP_DELAY_STEP);
+        this.updateLevel();
         this.food = this.spawnFood();
         if (!this.food) {
-          this.finishGame('You cleared the board!');
+          this.finishGame('cleared');
           return;
         }
       } else {
@@ -347,10 +401,15 @@
       this.syncStateAttributes();
     }
 
-    finishGame(message = 'Game over') {
+    updateLevel() {
+      this.level = Math.max(1, Math.floor(this.score / 10) + 1);
+      this.stepDelay = Math.max(STEP_DELAY_MIN, STEP_DELAY_START - (this.level - 1) * STEP_DELAY_STEP);
+    }
+
+    finishGame(message = 'gameOver') {
       this.running = false;
       this.gameOver = true;
-      this.setState('Game over');
+      this.setState('gameOver');
       this.updateButtonState();
       this.showOverlay(message);
       this.updateHud();
@@ -383,12 +442,17 @@
       if (this.highScoreValue) {
         this.highScoreValue.textContent = String(this.highScore);
       }
+
+      if (this.levelValue) {
+        this.levelValue.textContent = String(this.level);
+      }
     }
 
     syncStateAttributes() {
       const head = this.snake[0] || { x: -1, y: -1 };
       this.root.dataset.score = String(this.score);
       this.root.dataset.highScore = String(this.highScore);
+      this.root.dataset.level = String(this.level);
       this.root.dataset.running = String(this.running);
       this.root.dataset.gameOver = String(this.gameOver);
       this.root.dataset.headX = String(head.x);
@@ -403,27 +467,29 @@
 
     updateButtonState() {
       if (this.startButton) {
-        this.startButton.textContent = this.running ? 'Running' : 'Start';
+        this.startButton.textContent = this.running ? this.t('running') : this.t('start');
       }
 
       if (this.pauseButton) {
-        this.pauseButton.textContent = this.running ? 'Pause' : 'Resume';
+        this.pauseButton.textContent = this.running ? this.t('pause') : this.t('resume');
       }
     }
 
-    setState(label) {
+    setState(labelKey) {
+      this.stateKey = labelKey;
       if (this.statePill) {
-        this.statePill.textContent = label;
+        this.statePill.textContent = this.t(labelKey);
       }
       this.updateButtonState();
     }
 
-    showOverlay(message) {
+    showOverlay(messageKey) {
+      this.overlayKey = messageKey;
       if (!this.overlay) {
         return;
       }
 
-      this.overlay.textContent = message;
+      this.overlay.textContent = this.t(messageKey);
       this.overlay.classList.remove('is-hidden');
     }
 
@@ -433,6 +499,7 @@
       }
 
       this.overlay.textContent = '';
+      this.overlayKey = '';
       this.overlay.classList.add('is-hidden');
     }
 
@@ -441,7 +508,7 @@
         return;
       }
 
-      this.overlay.textContent = 'Swipe or tap arrows to steer';
+      this.showOverlay('hint');
     }
 
     render() {

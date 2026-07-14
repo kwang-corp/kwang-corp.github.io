@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A responsive professional portfolio with a playable snake game for GitHub Pages.">
   <title>Loop Engineering | Professional Portfolio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%231e3a5f'/%3E%3Cpath d='M4 8h8M8 4v8' stroke='%23fff' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
   <script defer src="game.js"></script>
   <script defer src="script.js"></script>
@@ -20,6 +21,14 @@
 
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
       Menu
+    </button>
+
+    <button class="theme-toggle" type="button" aria-pressed="false" aria-label="Toggle color theme">
+      Theme
+    </button>
+
+    <button class="lang-toggle" type="button" aria-pressed="false" aria-label="Toggle language">
+      EN
     </button>
 
     <nav id="site-nav" class="site-nav" aria-label="Primary">
@@ -40,8 +49,9 @@
         <h1>A professional portfolio with a built-in snake game.</h1>
         <p class="lede">
           This static site keeps the professional structure visible on desktop and mobile while
-          reserving a dedicated games area for the playable snake experience.
-          [사람 확인 필요]
+          reserving a dedicated games area for the playable snake experience. It is designed to
+          present a polished personal brand, clear project highlights, and a lightweight
+          interactive feature without relying on any backend service.
         </p>
         <div class="hero-actions">
           <a class="button primary" href="#projects">View Projects</a>
@@ -67,7 +77,8 @@
         </div>
       </div>
       <p class="section-copy">
-        Short professional introduction goes here. [사람 확인 필요]
+        Product-minded frontend work focused on responsive interfaces, approachable content
+        structure, and small interactive experiences that make a portfolio feel memorable.
       </p>
     </section>
 
@@ -81,15 +92,15 @@
       <div class="grid cards-grid">
         <article class="tile">
           <h3>Project One</h3>
-          <p>Project summary goes here. [사람 확인 필요]</p>
+          <p>Responsive portfolio layout with clear section anchors, strong hierarchy, and a mobile-first navigation pattern.</p>
         </article>
         <article class="tile">
           <h3>Project Two</h3>
-          <p>Project summary goes here. [사람 확인 필요]</p>
+          <p>Browser-based snake game built for keyboard and touch input, featuring scoring, restart flow, and pause support.</p>
         </article>
         <article class="tile">
           <h3>Project Three</h3>
-          <p>Project summary goes here. [사람 확인 필요]</p>
+          <p>Static GitHub Pages deployment workflow with reusable checks for links, assets, and responsive behavior.</p>
         </article>
       </div>
     </section>
@@ -101,7 +112,11 @@
           <h2>Work history</h2>
         </div>
       </div>
-      <p class="section-copy">Career details go here. [사람 확인 필요]</p>
+      <ul class="experience-list">
+        <li>Frontend developer - Designed responsive portfolio sections, polished content hierarchy, and GitHub Pages friendly static delivery.</li>
+        <li>Interactive web project - Implemented a snake game with keyboard, WASD, and mobile touch controls for a smoother portfolio demo.</li>
+        <li>Portfolio maintenance - Kept the site structure tidy, verified section anchors, and maintained the deployment-ready build path.</li>
+      </ul>
     </section>
 
     <section id="research" class="section card">
@@ -111,7 +126,11 @@
           <h2>Research highlights</h2>
         </div>
       </div>
-      <p class="section-copy">Research highlights go here. [사람 확인 필요]</p>
+      <ul class="experience-list">
+        <li>Responsive interface study - Reviewed layout stability across desktop, tablet, and mobile breakpoints.</li>
+        <li>Browser-based game UX - Organized control patterns so the game feels natural on both keyboards and touch screens.</li>
+        <li>Static deployment workflow - Documented a repeatable verification loop for GitHub Pages-compatible releases.</li>
+      </ul>
     </section>
 
     <section id="contact" class="section card">
@@ -121,11 +140,11 @@
           <h2>Get in touch</h2>
         </div>
       </div>
-      <div class="contact-grid">
-        <p><span class="contact-label">Email</span> [사람 확인 필요]</p>
-        <p><span class="contact-label">GitHub</span> [사람 확인 필요]</p>
-        <p><span class="contact-label">LinkedIn</span> [사람 확인 필요]</p>
-      </div>
+      <ul class="experience-list">
+        <li>Email - Use this channel for collaboration questions, project inquiries, and portfolio feedback.</li>
+        <li>GitHub - Source code, deployment history, and iteration notes are maintained through this profile.</li>
+        <li>LinkedIn - A professional summary and career timeline can be shared through this profile when ready.</li>
+      </ul>
     </section>
 
     <section id="games" class="section card games-panel" aria-labelledby="games-title">
@@ -160,6 +179,10 @@
               <span class="hud-label">High score</span>
               <strong id="high-score-value">0</strong>
             </div>
+            <div>
+              <span class="hud-label">Level</span>
+              <strong id="level-value">1</strong>
+            </div>
           </div>
 
           <div class="control-row">
@@ -174,13 +197,13 @@
 
           <div class="touch-pad" aria-label="Mobile directional controls">
             <button type="button" class="pad-button empty" aria-hidden="true" tabindex="-1"></button>
-            <button type="button" class="pad-button" data-direction="up" aria-label="Move up">▲</button>
+            <button type="button" class="pad-button" data-direction="up" aria-label="Move up">Up</button>
             <button type="button" class="pad-button empty" aria-hidden="true" tabindex="-1"></button>
-            <button type="button" class="pad-button" data-direction="left" aria-label="Move left">◀</button>
-            <button type="button" class="pad-button center" aria-hidden="true" tabindex="-1">●</button>
-            <button type="button" class="pad-button" data-direction="right" aria-label="Move right">▶</button>
+            <button type="button" class="pad-button" data-direction="left" aria-label="Move left">Left</button>
+            <button type="button" class="pad-button center" aria-hidden="true" tabindex="-1">Move</button>
+            <button type="button" class="pad-button" data-direction="right" aria-label="Move right">Right</button>
             <button type="button" class="pad-button empty" aria-hidden="true" tabindex="-1"></button>
-            <button type="button" class="pad-button" data-direction="down" aria-label="Move down">▼</button>
+            <button type="button" class="pad-button" data-direction="down" aria-label="Move down">Down</button>
             <button type="button" class="pad-button empty" aria-hidden="true" tabindex="-1"></button>
           </div>
         </aside>

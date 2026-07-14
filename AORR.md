@@ -575,3 +575,107 @@ If the issue is environmental or permission-based, do not attempt to fix it in c
 - 이후 루프는 이 기본 뼈대를 보존하면서 반응형 세부 조정, 콘텐츠 정리, `Games` 기능 확장 순으로 진행했다.
 - `Research` 섹션이 추가되어 프로필 섹션 구조가 조금 더 명확해졌고, 현재는 지렁이 게임과 반응형 포트폴리오가 구현된 상태다.
 - 다음 단계는 배포 승인 후 GitHub Pages 최초 배포다.
+
+
+# 개선 요구 항목
+
+- 화면이 작은 경우에 game의 컨트롤 탭이 화면과 멀리 떨어져 있어서 사용 불가
+- 여러 언어 지원(기본 : 한글, 추가 : 영어)
+- game에서 난이도(level) 속성 추가해줘.(SCORE 10점 올라갈때마다 속도 1단계씩 올라가도록)
+- 라이트/다크 선택 가능하도록 기능 추가해줘
+- 화면 좌측에 indexing을 위한 스크롤 추가해줘
+- 버튼이 실제로 눌리는 즉시 방향이 바뀌지 않아
+- 타겟이 여러개 생성되는 시나리오도 추가되었으면 좋겠어
+## Change Request Loop Plan
+
+이 섹션은 사용자 수정 요청을 실행 가능한 변경 루프로 분해한 계획이다.
+
+### 기준선
+- 마지막 정상 배포 commit: `598ffbb00b0f7e6f1f0f7e60ddadea01e4b1d959`
+- 마지막 정상 배포 URL: `https://kwang-corp.github.io/`
+- Change Request ID: `CR-20260714-001`
+
+### Change Item 요약
+- `CR-001`: 작은 화면에서 게임 조작 패널이 너무 멀다.
+- `CR-002`: 버튼을 누르는 즉시 방향이 바뀌지 않는다.
+- `CR-003`: 기본 한글, 추가 영어 다국어 지원이 필요하다.
+- `CR-004`: 라이트/다크 테마 선택 기능이 필요하다.
+- `CR-005`: 화면 좌측 indexing/스크롤 보조 UI가 필요하다.
+- `CR-006`: 점수 10점마다 level이 올라가고 속도가 빨라져야 한다.
+- `CR-007`: 여러 타겟이 생성되는 시나리오가 필요하다.
+
+### 실행 순서
+1. 기준선과 현재 상태 확인
+2. `CR-001` 모바일 조작 접근성 개선
+3. `CR-002` 버튼 즉시 반응 문제 수정
+4. `CR-006` level/속도 규칙 추가
+5. `CR-007` 다중 타겟 시나리오 추가
+6. `CR-003` 다국어 지원
+7. `CR-004` 라이트/다크 전환
+8. `CR-005` 좌측 indexing 보조 UI
+9. 전체 회귀 테스트와 GitHub Pages 호환성 검증
+
+### 상태 전이
+- 기준선 확인: `READY`
+- 변경 계획 확정: `CHANGE_PLANNED`
+- 구현 착수: `ACTING`
+- 검증 수행: `VERIFYING`
+- 실패 재시도: `RETRYING`
+- 완료: `PASSED`
+- 배포 준비: `DEPLOY_APPROVAL_REQUIRED`
+- 배포 중: `DEPLOYING`
+- 배포 완료: `DEPLOYED`
+- 사람 확인 필요: `HITL_REQUIRED`
+
+### Verifier
+- 저장소 구조와 git 상태 확인
+- 브라우저에서 모바일/태블릿/데스크톱 확인
+- 게임 조작, 난이도, 다중 타겟, 언어, 테마 검증
+- GitHub Pages 호환성 확인
+
+### HITL 조건
+- `CR-005`의 "indexing" 의미가 불명확할 때
+- `CR-007`의 다중 타겟 규칙이 불명확할 때
+- `CR-003`의 번역 범위가 불명확할 때
+- `CR-004`의 기본 테마 선호가 필요할 때
+
+### Stop 조건
+- 전체 회귀 테스트가 통과할 때
+- 동일 fingerprint가 2회 반복될 때
+- Retry 최대치에 도달할 때
+- 사람 확인이 필요한 내용이 남아 있을 때
+
+### Execution Update
+- `CR-001` 상태: `PASSED`
+  - 변경 파일: `index.html`, `styles.css`
+  - 결과: 모바일에서 게임 조작 패널이 보드 앞쪽에 배치됨
+- `CR-002` 상태: `PASSED`
+  - 변경 파일: `game.js`
+  - 결과: pointerdown 입력으로 즉시 방향 전환 확인
+- `CR-006` 상태: `PASSED`
+  - 변경 파일: `index.html`, `styles.css`, `game.js`
+  - 결과: score 10점마다 level 증가 및 stepDelay 감소 확인
+- `CR-007` 상태: `BLOCKED`
+  - 사유: 다중 타겟 생성 규칙이 아직 불명확함
+- `CR-003` 상태: `READY`
+- `CR-004` 상태: `READY`
+- `CR-005` 상태: `HITL_REQUIRED`
+## Re-Verification Update
+- `CR-003`: `PASSED`
+  - Target: Korean default language and English toggle
+  - Act: rewrote `script.js` to apply locale copy and sync the snake game locale
+  - Observe: browser shows Korean by default, English after toggle, no console errors
+  - Reason: `CONTENT`, `INFORMATION_ARCHITECTURE`
+  - Verifier: Playwright + system Chrome on `375px` and `1440px`
+  - Stop: satisfied
+- `CR-004`: `PASSED`
+  - Target: light/dark theme toggle
+  - Act: kept theme application in `script.js` and verified CSS theme variables
+  - Observe: `data-theme` toggles correctly and style changes are reflected, no console errors
+  - Reason: `UI_UX`, `ACCESSIBILITY`
+  - Verifier: Playwright + system Chrome on `375px` and `1440px`
+  - Stop: satisfied
+- `CR-005`: `HITL_REQUIRED`
+  - `indexing` meaning is still ambiguous
+- `CR-007`: `BLOCKED`
+  - multi-target spawn rules are still undefined
